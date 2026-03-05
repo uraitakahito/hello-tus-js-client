@@ -76,7 +76,7 @@ uploadButton.addEventListener("click", () => {
 
   currentUpload = new tus.Upload(file, {
     endpoint: endpointInput.value,
-    retryDelays: [0, 3000, 5000, 10000, 20000],
+    retryDelays: [0, 3000, 5000],
     metadata: {
       filename: file.name,
       filetype: file.type,
