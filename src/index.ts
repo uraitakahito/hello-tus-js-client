@@ -12,6 +12,17 @@ endpointInput.value = "http://localhost:8080/files/";
 endpointInput.className = "endpoint-input";
 endpointLabel.appendChild(endpointInput);
 
+// Token input
+const tokenLabel = document.createElement("label");
+tokenLabel.textContent = "Token: ";
+tokenLabel.className = "token-label";
+const tokenInput = document.createElement("input");
+tokenInput.type = "text";
+tokenInput.value =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyMDAxIn0.dummy-signature";
+tokenInput.className = "token-input";
+tokenLabel.appendChild(tokenInput);
+
 // File input
 const fileInput = document.createElement("input");
 fileInput.type = "file";
@@ -48,6 +59,7 @@ retryPanel.appendChild(retryCountLabel);
 retryPanel.appendChild(manualRetryButton);
 
 app.appendChild(endpointLabel);
+app.appendChild(tokenLabel);
 app.appendChild(fileInput);
 app.appendChild(uploadButton);
 app.appendChild(progressContainer);
@@ -74,8 +86,14 @@ uploadButton.addEventListener("click", () => {
   status.textContent = "Uploading...";
   uploadButton.disabled = true;
 
+  const headers: Record<string, string> = {};
+  if (tokenInput.value) {
+    headers["Authorization"] = `Bearer ${tokenInput.value}`;
+  }
+
   currentUpload = new tus.Upload(file, {
     endpoint: endpointInput.value,
+    headers,
     retryDelays: [0, 3000, 5000],
     metadata: {
       filename: file.name,
