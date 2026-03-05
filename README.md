@@ -19,6 +19,16 @@ Detailed environment setup instructions are described at the beginning of the `D
 
 Go to http://localhost:8081/ and you should see the app running. When you change assets during development, it is recommended to perform a hard refresh [(⌘ + ⇧ + r)](https://support.google.com/chrome/answer/157179) instead of a regular browser reload.
 
+## Starting tusd
+
+Start a [tusd](https://github.com/tus/tusd) container to accept file uploads:
+
+```console
+% docker run -d --init --rm -p 8080:8080 --name tusd-container docker.io/tusproject/tusd:latest -host=0.0.0.0 -port=8080
+```
+
+The app uploads files to `http://localhost:8080/files/` (tusd's default base path).
+
 ## Debugging with Chrome DevTools
 
 This project generates source maps (`sourcemap: true` in `rollup.config.ts`), so you can step through the original TypeScript source in Chrome DevTools.
