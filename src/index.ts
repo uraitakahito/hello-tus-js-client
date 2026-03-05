@@ -13,9 +13,9 @@ uploadButton.disabled = true;
 
 // Progress bar
 const progressContainer = document.createElement("div");
-progressContainer.style.cssText = "width:100%;background:#eee;margin-top:8px;display:none;";
+progressContainer.className = "progress-container";
 const progressBar = document.createElement("div");
-progressBar.style.cssText = "width:0%;height:24px;background:#4caf50;transition:width 0.2s;";
+progressBar.className = "progress-bar";
 progressContainer.appendChild(progressBar);
 
 // Status
@@ -34,7 +34,7 @@ uploadButton.addEventListener("click", () => {
   const file = fileInput.files?.[0];
   if (!file) return;
 
-  progressContainer.style.display = "block";
+  progressContainer.classList.add("visible");
   progressBar.style.width = "0%";
   status.textContent = "Uploading...";
   uploadButton.disabled = true;
