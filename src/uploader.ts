@@ -1,12 +1,12 @@
 import * as tus from "tus-js-client";
-import type { UploadCallbacks, UploadParams } from "./types";
+import type { UploadEventHandler, UploadParams } from "./types";
 
 export interface Uploader {
   startUpload(params: UploadParams): void;
   retryUpload(): void;
 }
 
-export function createUploader(callbacks: UploadCallbacks): Uploader {
+export function createUploader(onEvent: UploadEventHandler): Uploader {
   let currentUpload: tus.Upload | null = null;
 
   return {
@@ -33,17 +33,23 @@ export function createUploader(callbacks: UploadCallbacks): Uploader {
               ? `HTTP ${String(statusCode)}`
               : "ネットワークエラー";
 
-          callbacks.onRetrying(retryAttempt, maxRetries, delay, reason);
+          onEvent({
+            type: "RETRY",
+            attempt: retryAttempt,
+            maxRetries,
+            delay,
+            reason,
+          });
           return true;
         },
         onError(error) {
-          callbacks.onError(error.message);
+          onEvent({ type: "ERROR", message: error.message });
         },
         onProgress(bytesUploaded, bytesTotal) {
-          callbacks.onProgress(bytesUploaded, bytesTotal);
+          onEvent({ type: "PROGRESS", bytesUploaded, bytesTotal });
         },
         onSuccess() {
-          callbacks.onSuccess(currentUpload?.url ?? "");
+          onEvent({ type: "SUCCESS", url: currentUpload?.url ?? "" });
         },
       });
 

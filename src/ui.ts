@@ -1,20 +1,12 @@
+import type { UploadState } from "./state";
+
 export interface UI {
   endpointInput: HTMLInputElement;
   tokenInput: HTMLInputElement;
   fileInput: HTMLInputElement;
   uploadButton: HTMLButtonElement;
   manualRetryButton: HTMLButtonElement;
-  resetForUpload(): void;
-  showProgress(bytesUploaded: number, bytesTotal: number): void;
-  showRetrying(
-    attempt: number,
-    maxRetries: number,
-    delay: number,
-    reason: string,
-  ): void;
-  showError(message: string): void;
-  showSuccess(url: string): void;
-  resetRetryState(): void;
+  render(state: UploadState): void;
 }
 
 export function createUI(root: HTMLElement): UI {
@@ -89,57 +81,66 @@ export function createUI(root: HTMLElement): UI {
     uploadButton,
     manualRetryButton,
 
-    resetForUpload() {
-      retryPanel.hidden = true;
-      manualRetryButton.hidden = true;
-      progressBar.classList.remove("retrying");
-      progressContainer.classList.add("visible");
-      progressBar.style.width = "0%";
-      status.textContent = "Uploading...";
-      uploadButton.disabled = true;
-    },
+    render(state: UploadState) {
+      switch (state.kind) {
+        case "idle":
+          retryPanel.hidden = true;
+          manualRetryButton.hidden = true;
+          progressBar.classList.remove("retrying");
+          progressContainer.classList.remove("visible");
+          progressBar.style.width = "0%";
+          status.textContent = "";
+          uploadButton.disabled = !fileInput.files?.length;
+          break;
 
-    showProgress(bytesUploaded: number, bytesTotal: number) {
-      const percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(1);
-      progressBar.style.width = `${percentage}%`;
-      status.textContent = `Uploading: ${percentage}% (${String(bytesUploaded)}/${String(bytesTotal)} bytes)`;
-    },
+        case "uploading": {
+          retryPanel.hidden = true;
+          manualRetryButton.hidden = true;
+          progressBar.classList.remove("retrying");
+          progressContainer.classList.add("visible");
+          uploadButton.disabled = true;
+          if (state.bytesTotal > 0) {
+            const percentage = (
+              (state.bytesUploaded / state.bytesTotal) *
+              100
+            ).toFixed(1);
+            progressBar.style.width = `${percentage}%`;
+            status.textContent = `Uploading: ${percentage}% (${String(state.bytesUploaded)}/${String(state.bytesTotal)} bytes)`;
+          } else {
+            progressBar.style.width = "0%";
+            status.textContent = "Uploading...";
+          }
+          break;
+        }
 
-    showRetrying(
-      attempt: number,
-      maxRetries: number,
-      delay: number,
-      reason: string,
-    ) {
-      retryPanel.hidden = false;
-      retryMessage.textContent = `サーバーに接続できません (${reason})`;
-      retryCountLabel.textContent =
-        `リトライ ${String(attempt + 1)}/${String(maxRetries)} — ${String(delay / 1000)}秒後に再試行`;
-      progressBar.classList.add("retrying");
-    },
+        case "retrying":
+          retryPanel.hidden = false;
+          manualRetryButton.hidden = true;
+          retryMessage.textContent =
+            `サーバーに接続できません (${state.reason})`;
+          retryCountLabel.textContent =
+            `リトライ ${String(state.attempt + 1)}/${String(state.maxRetries)} — ${String(state.delay / 1000)}秒後に再試行`;
+          progressBar.classList.add("retrying");
+          uploadButton.disabled = true;
+          break;
 
-    showError(message: string) {
-      retryPanel.hidden = false;
-      retryMessage.textContent = `アップロード失敗: ${message}`;
-      retryCountLabel.textContent = "全てのリトライが失敗しました";
-      manualRetryButton.hidden = false;
-      progressBar.classList.remove("retrying");
-      uploadButton.disabled = false;
-    },
+        case "error":
+          retryPanel.hidden = false;
+          retryMessage.textContent = `アップロード失敗: ${state.message}`;
+          retryCountLabel.textContent = "全てのリトライが失敗しました";
+          manualRetryButton.hidden = false;
+          progressBar.classList.remove("retrying");
+          uploadButton.disabled = false;
+          break;
 
-    showSuccess(url: string) {
-      retryPanel.hidden = true;
-      progressBar.classList.remove("retrying");
-      status.textContent = `Upload complete! ${url}`;
-      uploadButton.disabled = false;
-    },
-
-    resetRetryState() {
-      retryPanel.hidden = true;
-      manualRetryButton.hidden = true;
-      progressBar.classList.remove("retrying");
-      status.textContent = "Uploading...";
-      uploadButton.disabled = true;
+        case "success":
+          retryPanel.hidden = true;
+          manualRetryButton.hidden = true;
+          progressBar.classList.remove("retrying");
+          status.textContent = `Upload complete! ${state.url}`;
+          uploadButton.disabled = false;
+          break;
+      }
     },
   };
 }

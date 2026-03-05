@@ -1,14 +1,6 @@
-export interface UploadCallbacks {
-  onProgress(bytesUploaded: number, bytesTotal: number): void;
-  onSuccess(url: string): void;
-  onError(message: string): void;
-  onRetrying(
-    attempt: number,
-    maxRetries: number,
-    delay: number,
-    reason: string,
-  ): void;
-}
+import type { UploadEvent } from "./state";
+
+export type UploadEventHandler = (event: UploadEvent) => void;
 
 export interface UploadParams {
   file: File;
