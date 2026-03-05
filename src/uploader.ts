@@ -19,6 +19,7 @@ export function createUploader(onEvent: UploadEventHandler): Uploader {
       currentUpload = new tus.Upload(params.file, {
         endpoint: params.endpoint,
         headers,
+        chunkSize: params.chunkSize,
         retryDelays: [0, 3000, 5000],
         metadata: {
           filename: params.file.name,

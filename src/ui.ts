@@ -3,6 +3,7 @@ import type { UploadState } from "./state";
 export interface UI {
   endpointInput: HTMLInputElement;
   tokenInput: HTMLInputElement;
+  chunkSizeInput: HTMLInputElement;
   fileInput: HTMLInputElement;
   uploadButton: HTMLButtonElement;
   manualRetryButton: HTMLButtonElement;
@@ -30,6 +31,16 @@ export function createUI(root: HTMLElement): UI {
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyMDAxIn0.dummy-signature";
   tokenInput.className = "token-input";
   tokenLabel.appendChild(tokenInput);
+
+  // Chunk size input
+  const chunkSizeLabel = document.createElement("label");
+  chunkSizeLabel.textContent = "Chunk size (bytes): ";
+  chunkSizeLabel.className = "chunk-size-label";
+  const chunkSizeInput = document.createElement("input");
+  chunkSizeInput.type = "number";
+  chunkSizeInput.placeholder = "Infinity";
+  chunkSizeInput.className = "chunk-size-input";
+  chunkSizeLabel.appendChild(chunkSizeInput);
 
   // File input
   const fileInput = document.createElement("input");
@@ -68,6 +79,7 @@ export function createUI(root: HTMLElement): UI {
 
   root.appendChild(endpointLabel);
   root.appendChild(tokenLabel);
+  root.appendChild(chunkSizeLabel);
   root.appendChild(fileInput);
   root.appendChild(uploadButton);
   root.appendChild(progressContainer);
@@ -77,6 +89,7 @@ export function createUI(root: HTMLElement): UI {
   return {
     endpointInput,
     tokenInput,
+    chunkSizeInput,
     fileInput,
     uploadButton,
     manualRetryButton,
@@ -86,6 +99,7 @@ export function createUI(root: HTMLElement): UI {
         case "idle":
           endpointInput.disabled = false;
           tokenInput.disabled = false;
+          chunkSizeInput.disabled = false;
           fileInput.disabled = false;
           retryPanel.hidden = true;
           manualRetryButton.hidden = true;
@@ -100,6 +114,7 @@ export function createUI(root: HTMLElement): UI {
         case "uploading": {
           endpointInput.disabled = true;
           tokenInput.disabled = true;
+          chunkSizeInput.disabled = true;
           fileInput.disabled = true;
           retryPanel.hidden = true;
           manualRetryButton.hidden = true;
@@ -124,6 +139,7 @@ export function createUI(root: HTMLElement): UI {
         case "retrying":
           endpointInput.disabled = true;
           tokenInput.disabled = true;
+          chunkSizeInput.disabled = true;
           fileInput.disabled = true;
           retryPanel.hidden = false;
           manualRetryButton.hidden = true;
@@ -139,6 +155,7 @@ export function createUI(root: HTMLElement): UI {
         case "error":
           endpointInput.disabled = false;
           tokenInput.disabled = false;
+          chunkSizeInput.disabled = false;
           fileInput.disabled = false;
           retryPanel.hidden = false;
           retryMessage.textContent = `アップロード失敗: ${state.message}`;
@@ -152,6 +169,7 @@ export function createUI(root: HTMLElement): UI {
         case "success":
           endpointInput.disabled = false;
           tokenInput.disabled = false;
+          chunkSizeInput.disabled = false;
           fileInput.disabled = false;
           retryPanel.hidden = true;
           manualRetryButton.hidden = true;

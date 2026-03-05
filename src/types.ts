@@ -6,4 +6,5 @@ export interface UploadParams {
   file: File;
   endpoint: string;
   token: string;
+  chunkSize: number;
 }

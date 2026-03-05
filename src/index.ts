@@ -23,11 +23,14 @@ ui.uploadButton.addEventListener("click", () => {
   const file = ui.fileInput.files?.[0];
   if (!file) return;
 
+  const chunkSize = Number(ui.chunkSizeInput.value) || Infinity;
+
   dispatch({ type: "START" });
   uploader.startUpload({
     file,
     endpoint: ui.endpointInput.value,
     token: ui.tokenInput.value,
+    chunkSize,
   });
 });
 
