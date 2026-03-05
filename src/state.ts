@@ -23,7 +23,8 @@ export type UploadEvent =
     }
   | { type: "SUCCESS"; url: string }
   | { type: "ERROR"; message: string }
-  | { type: "MANUAL_RETRY" };
+  | { type: "MANUAL_RETRY" }
+  | { type: "RESET" };
 
 export function transition(
   state: UploadState,
@@ -57,5 +58,7 @@ export function transition(
     case "MANUAL_RETRY":
       if (state.kind !== "error") return state;
       return { kind: "uploading", bytesUploaded: 0, bytesTotal: 0 };
+    case "RESET":
+      return { kind: "idle" };
   }
 }

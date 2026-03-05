@@ -16,7 +16,7 @@ function dispatch(event: UploadEvent): void {
 const uploader = createUploader(dispatch);
 
 ui.fileInput.addEventListener("change", () => {
-  ui.uploadButton.disabled = !ui.fileInput.files?.length;
+  dispatch({ type: "RESET" });
 });
 
 ui.uploadButton.addEventListener("click", () => {
