@@ -2,6 +2,16 @@ import * as tus from "tus-js-client";
 
 const app = document.getElementById("app")!;
 
+// Endpoint input
+const endpointLabel = document.createElement("label");
+endpointLabel.textContent = "Endpoint: ";
+endpointLabel.className = "endpoint-label";
+const endpointInput = document.createElement("input");
+endpointInput.type = "text";
+endpointInput.value = "http://localhost:8080/files/";
+endpointInput.className = "endpoint-input";
+endpointLabel.appendChild(endpointInput);
+
 // File input
 const fileInput = document.createElement("input");
 fileInput.type = "file";
@@ -37,6 +47,7 @@ retryPanel.appendChild(retryMessage);
 retryPanel.appendChild(retryCountLabel);
 retryPanel.appendChild(manualRetryButton);
 
+app.appendChild(endpointLabel);
 app.appendChild(fileInput);
 app.appendChild(uploadButton);
 app.appendChild(progressContainer);
@@ -64,7 +75,7 @@ uploadButton.addEventListener("click", () => {
   uploadButton.disabled = true;
 
   currentUpload = new tus.Upload(file, {
-    endpoint: "http://localhost:8080/files/",
+    endpoint: endpointInput.value,
     retryDelays: [0, 3000, 5000, 10000, 20000],
     metadata: {
       filename: file.name,

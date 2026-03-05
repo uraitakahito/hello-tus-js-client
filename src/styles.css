@@ -1,3 +1,14 @@
+.endpoint-label {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.endpoint-input {
+  width: 100%;
+  max-width: 400px;
+  box-sizing: border-box;
+}
+
 .progress-container {
   width: 100%;
   background: #eee;
