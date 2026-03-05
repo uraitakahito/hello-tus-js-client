@@ -24,12 +24,12 @@
   // you **MUST RUN** the TypeScript: Select TypeScript Version command
   // and select the workspace version.
   // https://code.visualstudio.com/docs/typescript/typescript-compiling#_using-newer-typescript-versions
-  "typescript.tsdk": "./node_modules/typescript/lib",
+  "js/ts.tsdk.path": "./node_modules/typescript/lib",
 
   // https://code.visualstudio.com/docs/typescript/typescript-editing
-  "typescript.implementationsCodeLens.enabled": true,
-  "typescript.referencesCodeLens.enabled": true,
-  "typescript.suggest.autoImports": true,
+  "js/ts.implementationsCodeLens.enabled": true,
+  "js/ts.referencesCodeLens.enabled": true,
+  "js/ts.suggest.autoImports": true,
 
   //
   // ESLint

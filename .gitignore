@@ -1,2 +1,4 @@
 node_modules/
 dist/
+docker-entrypoint.sh
+Dockerfile
