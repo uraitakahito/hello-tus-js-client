@@ -84,8 +84,12 @@ export function createUI(root: HTMLElement): UI {
     render(state: UploadState) {
       switch (state.kind) {
         case "idle":
+          endpointInput.disabled = false;
+          tokenInput.disabled = false;
+          fileInput.disabled = false;
           retryPanel.hidden = true;
           manualRetryButton.hidden = true;
+          manualRetryButton.disabled = true;
           progressBar.classList.remove("retrying");
           progressContainer.classList.remove("visible");
           progressBar.style.width = "0%";
@@ -94,8 +98,12 @@ export function createUI(root: HTMLElement): UI {
           break;
 
         case "uploading": {
+          endpointInput.disabled = true;
+          tokenInput.disabled = true;
+          fileInput.disabled = true;
           retryPanel.hidden = true;
           manualRetryButton.hidden = true;
+          manualRetryButton.disabled = true;
           progressBar.classList.remove("retrying");
           progressContainer.classList.add("visible");
           uploadButton.disabled = true;
@@ -114,8 +122,12 @@ export function createUI(root: HTMLElement): UI {
         }
 
         case "retrying":
+          endpointInput.disabled = true;
+          tokenInput.disabled = true;
+          fileInput.disabled = true;
           retryPanel.hidden = false;
           manualRetryButton.hidden = true;
+          manualRetryButton.disabled = true;
           retryMessage.textContent =
             `サーバーに接続できません (${state.reason})`;
           retryCountLabel.textContent =
@@ -125,20 +137,28 @@ export function createUI(root: HTMLElement): UI {
           break;
 
         case "error":
+          endpointInput.disabled = false;
+          tokenInput.disabled = false;
+          fileInput.disabled = false;
           retryPanel.hidden = false;
           retryMessage.textContent = `アップロード失敗: ${state.message}`;
           retryCountLabel.textContent = "全てのリトライが失敗しました";
           manualRetryButton.hidden = false;
+          manualRetryButton.disabled = false;
           progressBar.classList.remove("retrying");
-          uploadButton.disabled = false;
+          uploadButton.disabled = !fileInput.files?.length;
           break;
 
         case "success":
+          endpointInput.disabled = false;
+          tokenInput.disabled = false;
+          fileInput.disabled = false;
           retryPanel.hidden = true;
           manualRetryButton.hidden = true;
+          manualRetryButton.disabled = true;
           progressBar.classList.remove("retrying");
           status.textContent = `Upload complete! ${state.url}`;
-          uploadButton.disabled = false;
+          uploadButton.disabled = !fileInput.files?.length;
           break;
       }
     },
