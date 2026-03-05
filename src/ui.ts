@@ -6,6 +6,7 @@ export interface UI {
   chunkSizeInput: HTMLInputElement;
   fileInput: HTMLInputElement;
   uploadButton: HTMLButtonElement;
+  pauseButton: HTMLButtonElement;
   manualRetryButton: HTMLButtonElement;
   render(state: UploadState): void;
 }
@@ -51,6 +52,11 @@ export function createUI(root: HTMLElement): UI {
   uploadButton.textContent = "Upload";
   uploadButton.disabled = true;
 
+  // Pause button
+  const pauseButton = document.createElement("button");
+  pauseButton.textContent = "中断";
+  pauseButton.hidden = true;
+
   // Progress bar
   const progressContainer = document.createElement("div");
   progressContainer.className = "progress-container";
@@ -82,6 +88,7 @@ export function createUI(root: HTMLElement): UI {
   root.appendChild(chunkSizeLabel);
   root.appendChild(fileInput);
   root.appendChild(uploadButton);
+  root.appendChild(pauseButton);
   root.appendChild(progressContainer);
   root.appendChild(status);
   root.appendChild(retryPanel);
@@ -92,6 +99,7 @@ export function createUI(root: HTMLElement): UI {
     chunkSizeInput,
     fileInput,
     uploadButton,
+    pauseButton,
     manualRetryButton,
 
     render(state: UploadState) {
@@ -104,7 +112,9 @@ export function createUI(root: HTMLElement): UI {
           retryPanel.hidden = true;
           manualRetryButton.hidden = true;
           manualRetryButton.disabled = true;
+          pauseButton.hidden = true;
           progressBar.classList.remove("retrying");
+          progressBar.classList.remove("paused");
           progressContainer.classList.remove("visible");
           progressBar.style.width = "0%";
           status.textContent = "";
@@ -119,7 +129,10 @@ export function createUI(root: HTMLElement): UI {
           retryPanel.hidden = true;
           manualRetryButton.hidden = true;
           manualRetryButton.disabled = true;
+          pauseButton.hidden = false;
+          pauseButton.textContent = "中断";
           progressBar.classList.remove("retrying");
+          progressBar.classList.remove("paused");
           progressContainer.classList.add("visible");
           uploadButton.disabled = true;
           if (state.bytesTotal > 0) {
@@ -144,6 +157,8 @@ export function createUI(root: HTMLElement): UI {
           retryPanel.hidden = false;
           manualRetryButton.hidden = true;
           manualRetryButton.disabled = true;
+          pauseButton.hidden = false;
+          pauseButton.textContent = "中断";
           retryMessage.textContent =
             `サーバーに接続できません (${state.reason})`;
           retryCountLabel.textContent =
@@ -151,6 +166,33 @@ export function createUI(root: HTMLElement): UI {
           progressBar.classList.add("retrying");
           uploadButton.disabled = true;
           break;
+
+        case "paused": {
+          endpointInput.disabled = true;
+          tokenInput.disabled = true;
+          chunkSizeInput.disabled = true;
+          fileInput.disabled = true;
+          retryPanel.hidden = true;
+          manualRetryButton.hidden = true;
+          manualRetryButton.disabled = true;
+          pauseButton.hidden = false;
+          pauseButton.textContent = "再開";
+          progressBar.classList.remove("retrying");
+          progressBar.classList.add("paused");
+          progressContainer.classList.add("visible");
+          uploadButton.disabled = true;
+          if (state.bytesTotal > 0) {
+            const percentage = (
+              (state.bytesUploaded / state.bytesTotal) *
+              100
+            ).toFixed(1);
+            progressBar.style.width = `${percentage}%`;
+            status.textContent = `中断中: ${percentage}% (${String(state.bytesUploaded)}/${String(state.bytesTotal)} bytes)`;
+          } else {
+            status.textContent = "中断中";
+          }
+          break;
+        }
 
         case "error":
           endpointInput.disabled = false;
@@ -162,7 +204,9 @@ export function createUI(root: HTMLElement): UI {
           retryCountLabel.textContent = "全てのリトライが失敗しました";
           manualRetryButton.hidden = false;
           manualRetryButton.disabled = false;
+          pauseButton.hidden = true;
           progressBar.classList.remove("retrying");
+          progressBar.classList.remove("paused");
           uploadButton.disabled = !fileInput.files?.length;
           break;
 
@@ -174,7 +218,9 @@ export function createUI(root: HTMLElement): UI {
           retryPanel.hidden = true;
           manualRetryButton.hidden = true;
           manualRetryButton.disabled = true;
+          pauseButton.hidden = true;
           progressBar.classList.remove("retrying");
+          progressBar.classList.remove("paused");
           status.textContent = `Upload complete! ${state.url}`;
           uploadButton.disabled = !fileInput.files?.length;
           break;

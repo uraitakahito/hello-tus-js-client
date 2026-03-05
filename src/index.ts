@@ -34,6 +34,16 @@ ui.uploadButton.addEventListener("click", () => {
   });
 });
 
+ui.pauseButton.addEventListener("click", () => {
+  if (state.kind === "uploading" || state.kind === "retrying") {
+    uploader.abortUpload();
+    dispatch({ type: "PAUSE" });
+  } else if (state.kind === "paused") {
+    dispatch({ type: "RESUME" });
+    uploader.retryUpload();
+  }
+});
+
 ui.manualRetryButton.addEventListener("click", () => {
   dispatch({ type: "MANUAL_RETRY" });
   uploader.retryUpload();

@@ -49,6 +49,10 @@
   transition: width 0.2s;
 }
 
+.progress-bar.paused {
+  background: #2196f3;
+}
+
 .progress-bar.retrying {
   background: #ff9800;
   animation: pulse 1s ease-in-out infinite;

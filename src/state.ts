@@ -8,6 +8,7 @@ export type UploadState =
       delay: number;
       reason: string;
     }
+  | { kind: "paused"; bytesUploaded: number; bytesTotal: number }
   | { kind: "error"; message: string }
   | { kind: "success"; url: string };
 
@@ -24,6 +25,8 @@ export type UploadEvent =
   | { type: "SUCCESS"; url: string }
   | { type: "ERROR"; message: string }
   | { type: "MANUAL_RETRY" }
+  | { type: "PAUSE" }
+  | { type: "RESUME" }
   | { type: "RESET" };
 
 export function transition(
@@ -58,6 +61,15 @@ export function transition(
     case "MANUAL_RETRY":
       if (state.kind !== "error") return state;
       return { kind: "uploading", bytesUploaded: 0, bytesTotal: 0 };
+    case "PAUSE":
+      if (state.kind === "uploading")
+        return { kind: "paused", bytesUploaded: state.bytesUploaded, bytesTotal: state.bytesTotal };
+      if (state.kind === "retrying")
+        return { kind: "paused", bytesUploaded: 0, bytesTotal: 0 };
+      return state;
+    case "RESUME":
+      if (state.kind !== "paused") return state;
+      return { kind: "uploading", bytesUploaded: state.bytesUploaded, bytesTotal: state.bytesTotal };
     case "RESET":
       return { kind: "idle" };
   }
