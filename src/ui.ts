@@ -30,8 +30,37 @@ export function createUI(root: HTMLElement, intl: IntlShape<string>): UI {
   tokenLabel.className = "token-label";
   const tokenInput = document.createElement("input");
   tokenInput.type = "text";
+  // Development JWT — signed with HS256, verifiable by the server.
+  //
+  // Secret : "dev-secret-do-not-use-in-production"
+  // Header : {"alg":"HS256","typ":"JWT"}
+  // Payload: {"sub":"user001"}
+  //
+  // Signature generation:
+  //   1. Base64url-encode the header and payload JSON strings.
+  //   2. Concatenate them with "." → "<header>.<payload>".
+  //   3. Compute HMAC-SHA256 of the concatenated string using the secret.
+  //   4. Base64url-encode the HMAC digest → this becomes the signature.
+  //
+  // To regenerate this token:
+  //   node -e "
+  //   const crypto = require('crypto');
+  //   const secret = 'dev-secret-do-not-use-in-production';
+  //   const h = Buffer.from(JSON.stringify({alg:'HS256',typ:'JWT'})).toString('base64url');
+  //   const p = Buffer.from(JSON.stringify({sub:'user001'})).toString('base64url');
+  //   const s = crypto.createHmac('sha256',secret).update(h+'.'+p).digest('base64url');
+  //   console.log(h+'.'+p+'.'+s);
+  //   "
+  //
+  // Server-side verification (Node.js):
+  //   const [header, payload, sig] = token.split(".");
+  //   const expected = crypto.createHmac("sha256", SECRET)
+  //     .update(header + "." + payload).digest("base64url");
+  //   if (!crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected)))
+  //     throw new Error("invalid signature");
+  //   const claims = JSON.parse(Buffer.from(payload, "base64url").toString());
   tokenInput.value =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyMDAxIn0.dummy-signature";
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyMDAxIn0.B9OtmBkfpQ1UM2Wp94-aQGOu7qAiRWGpAMejfdCy8fU";
   tokenInput.className = "token-input";
   tokenLabel.appendChild(tokenInput);
 
