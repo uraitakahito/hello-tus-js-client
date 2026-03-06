@@ -1,22 +1,26 @@
-import type { UploadState, UploadEvent } from "./state";
+import type { UploadState, UploadEvent, TransitionResult } from "./state";
 import { transition } from "./state";
 import { createUI } from "./ui";
 import { createUploader } from "./uploader";
 import { setupIntl } from "./i18n";
-// import enMessages from "./locales/en.json";
-import jaMessages from "./locales/ja.json";
 
-// const intl = setupIntl("en", enMessages as Record<string, string>);
-const intl = setupIntl("ja", jaMessages as Record<string, string>);
+const intl = setupIntl();
 
 const root = document.getElementById("app")!;
 const ui = createUI(root, intl);
 
 let state: UploadState = { kind: "idle" };
 
-function dispatch(event: UploadEvent): void {
-  state = transition(state, event);
+function dispatch(event: UploadEvent): TransitionResult {
+  const result: TransitionResult = transition(state, event);
+  if (!result.ok) {
+    console.warn(
+      `Invalid transition: event "${result.eventType}" in state "${result.from}"`,
+    );
+  }
+  state = result.state;
   ui.render(state);
+  return result;
 }
 
 const uploader = createUploader(dispatch, (statusCode) =>
@@ -26,6 +30,10 @@ const uploader = createUploader(dispatch, (statusCode) =>
 );
 
 ui.fileInput.addEventListener("change", () => {
+  if (state.kind === "uploading" || state.kind === "retrying") {
+    uploader.abortUpload();
+    dispatch({ type: "PAUSE" });
+  }
   dispatch({ type: "RESET" });
 });
 
@@ -35,7 +43,8 @@ ui.uploadButton.addEventListener("click", () => {
 
   const chunkSize = Number(ui.chunkSizeInput.value) || Infinity;
 
-  dispatch({ type: "START" });
+  const result = dispatch({ type: "START" });
+  if (!result.ok) return;
   uploader.startUpload({
     file,
     endpoint: ui.endpointInput.value,
@@ -47,14 +56,24 @@ ui.uploadButton.addEventListener("click", () => {
 ui.pauseButton.addEventListener("click", () => {
   if (state.kind === "uploading" || state.kind === "retrying") {
     uploader.abortUpload();
-    dispatch({ type: "PAUSE" });
+    const result = dispatch({ type: "PAUSE" });
+    if (!result.ok) uploader.retryUpload();
   } else if (state.kind === "paused") {
-    dispatch({ type: "RESUME" });
+    const result = dispatch({ type: "RESUME" });
+    if (!result.ok) return;
     uploader.retryUpload();
   }
 });
 
+ui.cancelButton.addEventListener("click", () => {
+  if (state.kind === "uploading" || state.kind === "retrying") {
+    uploader.abortUpload();
+  }
+  dispatch({ type: "CANCEL" });
+});
+
 ui.manualRetryButton.addEventListener("click", () => {
-  dispatch({ type: "MANUAL_RETRY" });
+  const result = dispatch({ type: "MANUAL_RETRY" });
+  if (!result.ok) return;
   uploader.retryUpload();
 });

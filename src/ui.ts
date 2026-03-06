@@ -8,6 +8,7 @@ export interface UI {
   fileInput: HTMLInputElement;
   uploadButton: HTMLButtonElement;
   pauseButton: HTMLButtonElement;
+  cancelButton: HTMLButtonElement;
   manualRetryButton: HTMLButtonElement;
   render(state: UploadState): void;
 }
@@ -29,8 +30,37 @@ export function createUI(root: HTMLElement, intl: IntlShape<string>): UI {
   tokenLabel.className = "token-label";
   const tokenInput = document.createElement("input");
   tokenInput.type = "text";
+  // Development JWT — signed with HS256, verifiable by the server.
+  //
+  // Secret : "dev-secret-do-not-use-in-production"
+  // Header : {"alg":"HS256","typ":"JWT"}
+  // Payload: {"sub":"user001"}
+  //
+  // Signature generation:
+  //   1. Base64url-encode the header and payload JSON strings.
+  //   2. Concatenate them with "." → "<header>.<payload>".
+  //   3. Compute HMAC-SHA256 of the concatenated string using the secret.
+  //   4. Base64url-encode the HMAC digest → this becomes the signature.
+  //
+  // To regenerate this token:
+  //   node -e "
+  //   const crypto = require('crypto');
+  //   const secret = 'dev-secret-do-not-use-in-production';
+  //   const h = Buffer.from(JSON.stringify({alg:'HS256',typ:'JWT'})).toString('base64url');
+  //   const p = Buffer.from(JSON.stringify({sub:'user001'})).toString('base64url');
+  //   const s = crypto.createHmac('sha256',secret).update(h+'.'+p).digest('base64url');
+  //   console.log(h+'.'+p+'.'+s);
+  //   "
+  //
+  // Server-side verification (Node.js):
+  //   const [header, payload, sig] = token.split(".");
+  //   const expected = crypto.createHmac("sha256", SECRET)
+  //     .update(header + "." + payload).digest("base64url");
+  //   if (!crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expected)))
+  //     throw new Error("invalid signature");
+  //   const claims = JSON.parse(Buffer.from(payload, "base64url").toString());
   tokenInput.value =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyMDAxIn0.dummy-signature";
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyMDAxIn0.B9OtmBkfpQ1UM2Wp94-aQGOu7qAiRWGpAMejfdCy8fU";
   tokenInput.className = "token-input";
   tokenLabel.appendChild(tokenInput);
 
@@ -57,6 +87,11 @@ export function createUI(root: HTMLElement, intl: IntlShape<string>): UI {
   const pauseButton = document.createElement("button");
   pauseButton.textContent = intl.formatMessage({ id: "button.pause" });
   pauseButton.hidden = true;
+
+  // Cancel button
+  const cancelButton = document.createElement("button");
+  cancelButton.textContent = intl.formatMessage({ id: "button.cancel" });
+  cancelButton.hidden = true;
 
   // Progress bar
   const progressContainer = document.createElement("div");
@@ -90,6 +125,7 @@ export function createUI(root: HTMLElement, intl: IntlShape<string>): UI {
   root.appendChild(fileInput);
   root.appendChild(uploadButton);
   root.appendChild(pauseButton);
+  root.appendChild(cancelButton);
   root.appendChild(progressContainer);
   root.appendChild(status);
   root.appendChild(retryPanel);
@@ -101,6 +137,7 @@ export function createUI(root: HTMLElement, intl: IntlShape<string>): UI {
     fileInput,
     uploadButton,
     pauseButton,
+    cancelButton,
     manualRetryButton,
 
     render(state: UploadState) {
@@ -114,6 +151,7 @@ export function createUI(root: HTMLElement, intl: IntlShape<string>): UI {
           manualRetryButton.hidden = true;
           manualRetryButton.disabled = true;
           pauseButton.hidden = true;
+          cancelButton.hidden = true;
           progressBar.classList.remove("retrying");
           progressBar.classList.remove("paused");
           progressContainer.classList.remove("visible");
@@ -132,6 +170,7 @@ export function createUI(root: HTMLElement, intl: IntlShape<string>): UI {
           manualRetryButton.disabled = true;
           pauseButton.hidden = false;
           pauseButton.textContent = intl.formatMessage({ id: "button.pause" });
+          cancelButton.hidden = false;
           progressBar.classList.remove("retrying");
           progressBar.classList.remove("paused");
           progressContainer.classList.add("visible");
@@ -163,6 +202,7 @@ export function createUI(root: HTMLElement, intl: IntlShape<string>): UI {
           manualRetryButton.disabled = true;
           pauseButton.hidden = false;
           pauseButton.textContent = intl.formatMessage({ id: "button.pause" });
+          cancelButton.hidden = false;
           retryMessage.textContent = intl.formatMessage(
             { id: "retry.reason" },
             { reason: state.reason },
@@ -185,6 +225,7 @@ export function createUI(root: HTMLElement, intl: IntlShape<string>): UI {
           manualRetryButton.disabled = true;
           pauseButton.hidden = false;
           pauseButton.textContent = intl.formatMessage({ id: "button.resume" });
+          cancelButton.hidden = false;
           progressBar.classList.remove("retrying");
           progressBar.classList.add("paused");
           progressContainer.classList.add("visible");
@@ -210,6 +251,7 @@ export function createUI(root: HTMLElement, intl: IntlShape<string>): UI {
           tokenInput.disabled = false;
           chunkSizeInput.disabled = false;
           fileInput.disabled = false;
+          cancelButton.hidden = true;
           retryPanel.hidden = false;
           retryMessage.textContent = intl.formatMessage(
             { id: "retry.failed" },
@@ -233,6 +275,7 @@ export function createUI(root: HTMLElement, intl: IntlShape<string>): UI {
           manualRetryButton.hidden = true;
           manualRetryButton.disabled = true;
           pauseButton.hidden = true;
+          cancelButton.hidden = true;
           progressBar.classList.remove("retrying");
           progressBar.classList.remove("paused");
           status.textContent = intl.formatMessage(
