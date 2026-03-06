@@ -17,7 +17,7 @@ Detailed environment setup instructions are described at the beginning of the `D
 % docker run -d --init --rm -p 8081:80 --mount type=bind,src=`pwd`,dst=/usr/share/nginx/html --name nginx-container nginx
 ```
 
-Go to http://localhost:8081/ and you should see the app running. When you change assets during development, it is recommended to perform a hard refresh [(⌘ + ⇧ + r)](https://support.google.com/chrome/answer/157179) instead of a regular browser reload.
+Go to http://localhost:8081/?lang=ja and you should see the app running. When you change assets during development, it is recommended to perform a hard refresh [(⌘ + ⇧ + r)](https://support.google.com/chrome/answer/157179) instead of a regular browser reload.
 
 ## Starting tusd
 

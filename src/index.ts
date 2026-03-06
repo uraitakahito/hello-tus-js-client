@@ -3,11 +3,8 @@ import { transition } from "./state";
 import { createUI } from "./ui";
 import { createUploader } from "./uploader";
 import { setupIntl } from "./i18n";
-// import enMessages from "./locales/en.json";
-import jaMessages from "./locales/ja.json";
 
-// const intl = setupIntl("en", enMessages as Record<string, string>);
-const intl = setupIntl("ja", jaMessages as Record<string, string>);
+const intl = setupIntl();
 
 const root = document.getElementById("app")!;
 const ui = createUI(root, intl);
