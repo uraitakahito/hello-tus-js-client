@@ -20,6 +20,17 @@
   box-sizing: border-box;
 }
 
+.chunk-size-label {
+  display: block;
+  margin-bottom: 8px;
+}
+
+.chunk-size-input {
+  width: 100%;
+  max-width: 400px;
+  box-sizing: border-box;
+}
+
 .progress-container {
   width: 100%;
   background: #eee;
@@ -36,6 +47,10 @@
   height: 24px;
   background: #4caf50;
   transition: width 0.2s;
+}
+
+.progress-bar.paused {
+  background: #2196f3;
 }
 
 .progress-bar.retrying {
