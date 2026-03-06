@@ -1,3 +1,4 @@
+import type { IntlShape } from "@formatjs/intl";
 import type { UploadState } from "./state";
 
 export interface UI {
@@ -11,10 +12,10 @@ export interface UI {
   render(state: UploadState): void;
 }
 
-export function createUI(root: HTMLElement): UI {
+export function createUI(root: HTMLElement, intl: IntlShape<string>): UI {
   // Endpoint input
   const endpointLabel = document.createElement("label");
-  endpointLabel.textContent = "Endpoint: ";
+  endpointLabel.textContent = intl.formatMessage({ id: "label.endpoint" });
   endpointLabel.className = "endpoint-label";
   const endpointInput = document.createElement("input");
   endpointInput.type = "text";
@@ -24,7 +25,7 @@ export function createUI(root: HTMLElement): UI {
 
   // Token input
   const tokenLabel = document.createElement("label");
-  tokenLabel.textContent = "Token: ";
+  tokenLabel.textContent = intl.formatMessage({ id: "label.token" });
   tokenLabel.className = "token-label";
   const tokenInput = document.createElement("input");
   tokenInput.type = "text";
@@ -35,11 +36,11 @@ export function createUI(root: HTMLElement): UI {
 
   // Chunk size input
   const chunkSizeLabel = document.createElement("label");
-  chunkSizeLabel.textContent = "Chunk size (bytes): ";
+  chunkSizeLabel.textContent = intl.formatMessage({ id: "label.chunkSize" });
   chunkSizeLabel.className = "chunk-size-label";
   const chunkSizeInput = document.createElement("input");
   chunkSizeInput.type = "number";
-  chunkSizeInput.placeholder = "Infinity";
+  chunkSizeInput.placeholder = intl.formatMessage({ id: "placeholder.chunkSize" });
   chunkSizeInput.className = "chunk-size-input";
   chunkSizeLabel.appendChild(chunkSizeInput);
 
@@ -49,12 +50,12 @@ export function createUI(root: HTMLElement): UI {
 
   // Upload button
   const uploadButton = document.createElement("button");
-  uploadButton.textContent = "Upload";
+  uploadButton.textContent = intl.formatMessage({ id: "button.upload" });
   uploadButton.disabled = true;
 
   // Pause button
   const pauseButton = document.createElement("button");
-  pauseButton.textContent = "中断";
+  pauseButton.textContent = intl.formatMessage({ id: "button.pause" });
   pauseButton.hidden = true;
 
   // Progress bar
@@ -76,7 +77,7 @@ export function createUI(root: HTMLElement): UI {
   const retryCountLabel = document.createElement("span");
   retryCountLabel.className = "retry-count";
   const manualRetryButton = document.createElement("button");
-  manualRetryButton.textContent = "今すぐ再試行";
+  manualRetryButton.textContent = intl.formatMessage({ id: "button.manualRetry" });
   manualRetryButton.hidden = true;
 
   retryPanel.appendChild(retryMessage);
@@ -130,7 +131,7 @@ export function createUI(root: HTMLElement): UI {
           manualRetryButton.hidden = true;
           manualRetryButton.disabled = true;
           pauseButton.hidden = false;
-          pauseButton.textContent = "中断";
+          pauseButton.textContent = intl.formatMessage({ id: "button.pause" });
           progressBar.classList.remove("retrying");
           progressBar.classList.remove("paused");
           progressContainer.classList.add("visible");
@@ -141,10 +142,13 @@ export function createUI(root: HTMLElement): UI {
               100
             ).toFixed(1);
             progressBar.style.width = `${percentage}%`;
-            status.textContent = `Uploading: ${percentage}% (${String(state.bytesUploaded)}/${String(state.bytesTotal)} bytes)`;
+            status.textContent = intl.formatMessage(
+              { id: "status.uploading" },
+              { pct: percentage, uploaded: state.bytesUploaded, total: state.bytesTotal },
+            );
           } else {
             progressBar.style.width = "0%";
-            status.textContent = "Uploading...";
+            status.textContent = intl.formatMessage({ id: "status.uploadingNoProgress" });
           }
           break;
         }
@@ -158,11 +162,15 @@ export function createUI(root: HTMLElement): UI {
           manualRetryButton.hidden = true;
           manualRetryButton.disabled = true;
           pauseButton.hidden = false;
-          pauseButton.textContent = "中断";
-          retryMessage.textContent =
-            `サーバーに接続できません (${state.reason})`;
-          retryCountLabel.textContent =
-            `リトライ ${String(state.attempt + 1)}/${String(state.maxRetries)} — ${String(state.delay / 1000)}秒後に再試行`;
+          pauseButton.textContent = intl.formatMessage({ id: "button.pause" });
+          retryMessage.textContent = intl.formatMessage(
+            { id: "retry.reason" },
+            { reason: state.reason },
+          );
+          retryCountLabel.textContent = intl.formatMessage(
+            { id: "retry.count" },
+            { attempt: state.attempt + 1, max: state.maxRetries, delaySec: state.delay / 1000 },
+          );
           progressBar.classList.add("retrying");
           uploadButton.disabled = true;
           break;
@@ -176,7 +184,7 @@ export function createUI(root: HTMLElement): UI {
           manualRetryButton.hidden = true;
           manualRetryButton.disabled = true;
           pauseButton.hidden = false;
-          pauseButton.textContent = "再開";
+          pauseButton.textContent = intl.formatMessage({ id: "button.resume" });
           progressBar.classList.remove("retrying");
           progressBar.classList.add("paused");
           progressContainer.classList.add("visible");
@@ -187,9 +195,12 @@ export function createUI(root: HTMLElement): UI {
               100
             ).toFixed(1);
             progressBar.style.width = `${percentage}%`;
-            status.textContent = `中断中: ${percentage}% (${String(state.bytesUploaded)}/${String(state.bytesTotal)} bytes)`;
+            status.textContent = intl.formatMessage(
+              { id: "status.paused" },
+              { pct: percentage, uploaded: state.bytesUploaded, total: state.bytesTotal },
+            );
           } else {
-            status.textContent = "中断中";
+            status.textContent = intl.formatMessage({ id: "status.pausedNoProgress" });
           }
           break;
         }
@@ -200,8 +211,11 @@ export function createUI(root: HTMLElement): UI {
           chunkSizeInput.disabled = false;
           fileInput.disabled = false;
           retryPanel.hidden = false;
-          retryMessage.textContent = `アップロード失敗: ${state.message}`;
-          retryCountLabel.textContent = "全てのリトライが失敗しました";
+          retryMessage.textContent = intl.formatMessage(
+            { id: "retry.failed" },
+            { message: state.message },
+          );
+          retryCountLabel.textContent = intl.formatMessage({ id: "retry.allFailed" });
           manualRetryButton.hidden = false;
           manualRetryButton.disabled = false;
           pauseButton.hidden = true;
@@ -221,7 +235,10 @@ export function createUI(root: HTMLElement): UI {
           pauseButton.hidden = true;
           progressBar.classList.remove("retrying");
           progressBar.classList.remove("paused");
-          status.textContent = `Upload complete! ${state.url}`;
+          status.textContent = intl.formatMessage(
+            { id: "status.complete" },
+            { url: state.url },
+          );
           uploadButton.disabled = !fileInput.files?.length;
           break;
       }

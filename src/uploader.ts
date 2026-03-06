@@ -7,7 +7,10 @@ export interface Uploader {
   retryUpload(): void;
 }
 
-export function createUploader(onEvent: UploadEventHandler): Uploader {
+export function createUploader(
+  onEvent: UploadEventHandler,
+  formatErrorReason: (statusCode: number) => string,
+): Uploader {
   let currentUpload: tus.Upload | null = null;
 
   return {
@@ -30,10 +33,7 @@ export function createUploader(onEvent: UploadEventHandler): Uploader {
           const maxRetries = options.retryDelays?.length ?? 0;
           const delay = options.retryDelays?.[retryAttempt] ?? 0;
           const statusCode = error.originalResponse?.getStatus() ?? 0;
-          const reason =
-            statusCode > 0
-              ? `HTTP ${String(statusCode)}`
-              : "ネットワークエラー";
+          const reason = formatErrorReason(statusCode);
 
           onEvent({
             type: "RETRY",

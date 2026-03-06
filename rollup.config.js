@@ -1,6 +1,7 @@
 import typescript from "@rollup/plugin-typescript";
 import resolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
+import json from "@rollup/plugin-json";
 
 export default {
   input: "src/index.ts",
@@ -32,5 +33,5 @@ export default {
   // 該当するプラグインのソースコード:
   //   https://github.com/rollup/plugins/blob/master/packages/typescript/src/index.ts
   //   (load() フック内の filter(id) チェックと output.code != null チェック)
-  plugins: [resolve({ browser: true }), commonjs(), typescript()],
+  plugins: [resolve({ browser: true }), commonjs(), json(), typescript()],
 };
