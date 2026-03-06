@@ -6,6 +6,7 @@
   "button.upload": "アップロード",
   "button.pause": "一時停止",
   "button.resume": "再開",
+  "button.cancel": "中止",
   "button.manualRetry": "今すぐ再試行",
   "status.uploadingNoProgress": "アップロード中...",
   "status.uploading": "アップロード中: {pct}% ({uploaded, number}/{total, number} バイト)",

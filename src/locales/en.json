@@ -6,6 +6,7 @@
   "button.upload": "Upload",
   "button.pause": "Pause",
   "button.resume": "Resume",
+  "button.cancel": "Cancel",
   "button.manualRetry": "Retry now",
   "status.uploadingNoProgress": "Uploading...",
   "status.uploading": "Uploading: {pct}% ({uploaded, number}/{total, number} bytes)",

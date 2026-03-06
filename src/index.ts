@@ -65,6 +65,13 @@ ui.pauseButton.addEventListener("click", () => {
   }
 });
 
+ui.cancelButton.addEventListener("click", () => {
+  if (state.kind === "uploading" || state.kind === "retrying") {
+    uploader.abortUpload();
+  }
+  dispatch({ type: "CANCEL" });
+});
+
 ui.manualRetryButton.addEventListener("click", () => {
   const result = dispatch({ type: "MANUAL_RETRY" });
   if (!result.ok) return;

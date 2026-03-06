@@ -8,6 +8,7 @@ export interface UI {
   fileInput: HTMLInputElement;
   uploadButton: HTMLButtonElement;
   pauseButton: HTMLButtonElement;
+  cancelButton: HTMLButtonElement;
   manualRetryButton: HTMLButtonElement;
   render(state: UploadState): void;
 }
@@ -58,6 +59,11 @@ export function createUI(root: HTMLElement, intl: IntlShape<string>): UI {
   pauseButton.textContent = intl.formatMessage({ id: "button.pause" });
   pauseButton.hidden = true;
 
+  // Cancel button
+  const cancelButton = document.createElement("button");
+  cancelButton.textContent = intl.formatMessage({ id: "button.cancel" });
+  cancelButton.hidden = true;
+
   // Progress bar
   const progressContainer = document.createElement("div");
   progressContainer.className = "progress-container";
@@ -90,6 +96,7 @@ export function createUI(root: HTMLElement, intl: IntlShape<string>): UI {
   root.appendChild(fileInput);
   root.appendChild(uploadButton);
   root.appendChild(pauseButton);
+  root.appendChild(cancelButton);
   root.appendChild(progressContainer);
   root.appendChild(status);
   root.appendChild(retryPanel);
@@ -101,6 +108,7 @@ export function createUI(root: HTMLElement, intl: IntlShape<string>): UI {
     fileInput,
     uploadButton,
     pauseButton,
+    cancelButton,
     manualRetryButton,
 
     render(state: UploadState) {
@@ -114,6 +122,7 @@ export function createUI(root: HTMLElement, intl: IntlShape<string>): UI {
           manualRetryButton.hidden = true;
           manualRetryButton.disabled = true;
           pauseButton.hidden = true;
+          cancelButton.hidden = true;
           progressBar.classList.remove("retrying");
           progressBar.classList.remove("paused");
           progressContainer.classList.remove("visible");
@@ -132,6 +141,7 @@ export function createUI(root: HTMLElement, intl: IntlShape<string>): UI {
           manualRetryButton.disabled = true;
           pauseButton.hidden = false;
           pauseButton.textContent = intl.formatMessage({ id: "button.pause" });
+          cancelButton.hidden = false;
           progressBar.classList.remove("retrying");
           progressBar.classList.remove("paused");
           progressContainer.classList.add("visible");
@@ -163,6 +173,7 @@ export function createUI(root: HTMLElement, intl: IntlShape<string>): UI {
           manualRetryButton.disabled = true;
           pauseButton.hidden = false;
           pauseButton.textContent = intl.formatMessage({ id: "button.pause" });
+          cancelButton.hidden = false;
           retryMessage.textContent = intl.formatMessage(
             { id: "retry.reason" },
             { reason: state.reason },
@@ -185,6 +196,7 @@ export function createUI(root: HTMLElement, intl: IntlShape<string>): UI {
           manualRetryButton.disabled = true;
           pauseButton.hidden = false;
           pauseButton.textContent = intl.formatMessage({ id: "button.resume" });
+          cancelButton.hidden = false;
           progressBar.classList.remove("retrying");
           progressBar.classList.add("paused");
           progressContainer.classList.add("visible");
@@ -210,6 +222,7 @@ export function createUI(root: HTMLElement, intl: IntlShape<string>): UI {
           tokenInput.disabled = false;
           chunkSizeInput.disabled = false;
           fileInput.disabled = false;
+          cancelButton.hidden = true;
           retryPanel.hidden = false;
           retryMessage.textContent = intl.formatMessage(
             { id: "retry.failed" },
@@ -233,6 +246,7 @@ export function createUI(root: HTMLElement, intl: IntlShape<string>): UI {
           manualRetryButton.hidden = true;
           manualRetryButton.disabled = true;
           pauseButton.hidden = true;
+          cancelButton.hidden = true;
           progressBar.classList.remove("retrying");
           progressBar.classList.remove("paused");
           status.textContent = intl.formatMessage(
