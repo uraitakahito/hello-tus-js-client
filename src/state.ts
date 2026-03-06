@@ -75,6 +75,7 @@ export function transition(
 ): TransitionResult {
   switch (event.type) {
     case "START":
+      if (state.kind !== "idle") return rejected(state, event);
       return accepted({ kind: "uploading", bytesUploaded: 0, bytesTotal: 0 });
     case "PROGRESS":
       if (state.kind !== "uploading") return rejected(state, event);
