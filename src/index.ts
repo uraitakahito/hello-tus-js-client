@@ -30,6 +30,10 @@ const uploader = createUploader(dispatch, (statusCode) =>
 );
 
 ui.fileInput.addEventListener("change", () => {
+  if (state.kind === "uploading" || state.kind === "retrying") {
+    uploader.abortUpload();
+    dispatch({ type: "PAUSE" });
+  }
   dispatch({ type: "RESET" });
 });
 

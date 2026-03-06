@@ -16,8 +16,6 @@
  *     paused --> uploading : RESUME
  *     error --> uploading : MANUAL_RETRY
  *     idle --> idle : RESET
- *     uploading --> idle : RESET
- *     retrying --> idle : RESET
  *     paused --> idle : RESET
  *     error --> idle : RESET
  *     success --> idle : RESET
@@ -112,6 +110,8 @@ export function transition(
       if (state.kind !== "paused") return rejected(state, event);
       return accepted({ kind: "uploading", bytesUploaded: state.bytesUploaded, bytesTotal: state.bytesTotal });
     case "RESET":
+      if (state.kind === "uploading" || state.kind === "retrying")
+        return rejected(state, event);
       return accepted({ kind: "idle" });
   }
 }
