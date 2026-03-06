@@ -1,4 +1,4 @@
-import type { UploadState, UploadEvent } from "./state";
+import type { UploadState, UploadEvent, TransitionResult } from "./state";
 import { transition } from "./state";
 import { createUI } from "./ui";
 import { createUploader } from "./uploader";
@@ -12,7 +12,13 @@ const ui = createUI(root, intl);
 let state: UploadState = { kind: "idle" };
 
 function dispatch(event: UploadEvent): void {
-  state = transition(state, event);
+  const result: TransitionResult = transition(state, event);
+  if (!result.ok) {
+    console.warn(
+      `Invalid transition: event "${result.eventType}" in state "${result.from}"`,
+    );
+  }
+  state = result.state;
   ui.render(state);
 }
 
