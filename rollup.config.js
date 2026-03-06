@@ -34,4 +34,30 @@ export default {
   //   https://github.com/rollup/plugins/blob/master/packages/typescript/src/index.ts
   //   (load() フック内の filter(id) チェックと output.code != null チェック)
   plugins: [resolve({ browser: true }), commonjs(), json(), typescript()],
+
+  // NOTE: @formatjs/ecma402-abstract の循環依存警告の抑制
+  //
+  // @formatjs/ecma402-abstract@3.1.1 の内部で以下の循環 import が存在する:
+  //   types/number.js -> types/plural-rules.js -> types/number.js
+  //
+  // これは TypeScript ソース上の型のみの相互参照（import type）が、
+  // トランスパイル後の .js ファイルに副作用 import として残ったものである。
+  // 実際の .js ファイルは値のエクスポートを一切含まず、
+  // ランタイムで循環参照による未定義値は発生しない。
+  //
+  // 型の相互参照の内容:
+  //   - types/number.d.ts が types/plural-rules.d.ts から LDMLPluralRule 型を import
+  //   - types/plural-rules.d.ts が types/number.d.ts から NumberFormatDigitInternalSlots 型を import
+  //
+  // @formatjs/ecma402-abstract をアップグレードした際は、
+  // この循環が解消されているか再確認すること。
+  onwarn(warning, defaultHandler) {
+    if (
+      warning.code === "CIRCULAR_DEPENDENCY" &&
+      warning.ids?.some((id) => id.includes("@formatjs/ecma402-abstract"))
+    ) {
+      return;
+    }
+    defaultHandler(warning);
+  },
 };
