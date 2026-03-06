@@ -20,6 +20,6 @@ export default tseslint.config(
   },
 
   {
-    ignores: ["dist/", "node_modules/", ".Trash-*/"],
+    ignores: ["dist/", "docs/", "node_modules/", ".Trash-*/"],
   },
 );

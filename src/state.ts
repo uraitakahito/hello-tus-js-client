@@ -1,3 +1,31 @@
+/**
+ * アップロードの状態遷移を管理する有限状態機械（FSM）。
+ *
+ * ```mermaid
+ * stateDiagram-v2
+ *     [*] --> idle
+ *     idle --> uploading : START
+ *     uploading --> uploading : PROGRESS
+ *     uploading --> retrying : RETRY
+ *     uploading --> paused : PAUSE
+ *     uploading --> success : SUCCESS
+ *     uploading --> error : ERROR
+ *     retrying --> retrying : RETRY
+ *     retrying --> paused : PAUSE
+ *     retrying --> error : ERROR
+ *     paused --> uploading : RESUME
+ *     error --> uploading : MANUAL_RETRY
+ *     idle --> idle : RESET
+ *     uploading --> idle : RESET
+ *     retrying --> idle : RESET
+ *     paused --> idle : RESET
+ *     error --> idle : RESET
+ *     success --> idle : RESET
+ * ```
+ *
+ * @module
+ */
+
 export type UploadState =
   | { kind: "idle" }
   | { kind: "uploading"; bytesUploaded: number; bytesTotal: number }

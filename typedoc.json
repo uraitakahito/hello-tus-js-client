@@ -1,0 +1,10 @@
+{
+  "entryPoints": ["src"],
+  "entryPointStrategy": "expand",
+  "out": "docs/api",
+  "plugin": ["typedoc-plugin-mermaid"],
+  "tsconfig": "tsconfig.json",
+  "name": "hello-tus-js-client",
+  "excludePrivate": true,
+  "mermaidVersion": "11"
+}
