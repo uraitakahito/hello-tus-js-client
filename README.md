@@ -14,10 +14,10 @@ Detailed environment setup instructions are described at the beginning of the `D
 
 ```console
 % npm run build
-% docker run -d --init --rm -p 8081:80 --mount type=bind,src=`pwd`,dst=/usr/share/nginx/html --name nginx-container nginx
+% docker run -d --init --rm -p 80:80 --mount type=bind,src=`pwd`,dst=/usr/share/nginx/html --name nginx-container nginx
 ```
 
-Go to http://localhost:8081/?lang=ja and you should see the app running. When you change assets during development, it is recommended to perform a hard refresh [(⌘ + ⇧ + r)](https://support.google.com/chrome/answer/157179) instead of a regular browser reload.
+Go to http://localhost:80/?lang=ja and you should see the app running. When you change assets during development, it is recommended to perform a hard refresh [(⌘ + ⇧ + r)](https://support.google.com/chrome/answer/157179) instead of a regular browser reload.
 
 ## Starting tusd
 
@@ -33,7 +33,7 @@ The app uploads files to `http://localhost:8080/files/` (tusd's default base pat
 
 This project generates source maps (`sourcemap: true` in `rollup.config.ts`), so you can step through the original TypeScript source in Chrome DevTools.
 
-1. Open http://localhost:8081/ in Google Chrome
+1. Open http://localhost:80/ in Google Chrome
 2. Open DevTools with **F12** (or **⌘ + Option + I** on Mac)
 3. Go to the **Sources** tab
 4. In the left pane file tree, locate the original `.ts` files mapped via source maps
